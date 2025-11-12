@@ -1,6 +1,6 @@
 # StudyEZ — Backend (.NET 8)
 
-An API for **StudyEZ**, an AI-assisted study app. It lets learners create courses, upload/author modules, auto-simplify content with AI, generate exams, take them, and view results — with Google OAuth sign-in and cookie auth.
+An API for **StudyEZ**, an AI-assisted study app. It lets learners create courses, upload/author modules, auto-simplify content with AI, generate exams, take them, and view results with Google OAuth sign-in and cookie auth.
 
 > Status: **Active development**
 > 
