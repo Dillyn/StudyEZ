@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyEZ_WebApi", "StudyEZ_WebApi\StudyEZ_WebApi.csproj", "{9118E499-8ADF-4EA2-89A3-81ECDA03AE4A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Shared", "1 - Shared", "{C8B9B6AE-75AE-4331-882E-8B77C37AC239}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "studyez-backend.Core", "studyez-backend.Core\studyez-backend.Core.csproj", "{2410E270-7D62-4A48-A309-A510E7D1B9B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "studyez-backend.Services", "studyez-backend.Services\studyez-backend.Services.csproj", "{C296B677-8E87-443E-8423-07FC1C82BFDE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - DataAccess", "2 - DataAccess", "{58F501AA-CC3F-4E80-9F08-39102AFC39AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "studyez-backend.DataAccess", "studyez-backend.DataAcess\studyez-backend.DataAccess.csproj", "{D38FA01E-FC75-4DE8-B25F-87542A841D60}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Tests", "3 - Tests", "{A51BD57D-765D-4DB9-9639-FD0C46F9EB8C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9118E499-8ADF-4EA2-89A3-81ECDA03AE4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9118E499-8ADF-4EA2-89A3-81ECDA03AE4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9118E499-8ADF-4EA2-89A3-81ECDA03AE4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9118E499-8ADF-4EA2-89A3-81ECDA03AE4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2410E270-7D62-4A48-A309-A510E7D1B9B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2410E270-7D62-4A48-A309-A510E7D1B9B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2410E270-7D62-4A48-A309-A510E7D1B9B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2410E270-7D62-4A48-A309-A510E7D1B9B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C296B677-8E87-443E-8423-07FC1C82BFDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C296B677-8E87-443E-8423-07FC1C82BFDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C296B677-8E87-443E-8423-07FC1C82BFDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C296B677-8E87-443E-8423-07FC1C82BFDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D38FA01E-FC75-4DE8-B25F-87542A841D60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D38FA01E-FC75-4DE8-B25F-87542A841D60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D38FA01E-FC75-4DE8-B25F-87542A841D60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D38FA01E-FC75-4DE8-B25F-87542A841D60}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9118E499-8ADF-4EA2-89A3-81ECDA03AE4A} = {C8B9B6AE-75AE-4331-882E-8B77C37AC239}
+		{2410E270-7D62-4A48-A309-A510E7D1B9B1} = {C8B9B6AE-75AE-4331-882E-8B77C37AC239}
+		{C296B677-8E87-443E-8423-07FC1C82BFDE} = {C8B9B6AE-75AE-4331-882E-8B77C37AC239}
+		{D38FA01E-FC75-4DE8-B25F-87542A841D60} = {58F501AA-CC3F-4E80-9F08-39102AFC39AC}
+	EndGlobalSection
+EndGlobal
