@@ -23,14 +23,14 @@ namespace studyez_backend.Services.Services
             return ToDto(c);
         }
 
-        public async Task<IReadOnlyList<CourseDto>> GetByUserAsync(Guid userId, Guid actorUserId, string actorRole, CancellationToken ct)
+        public async Task<IReadOnlyList<FetchCourseDto>> GetByUserAsync(Guid userId, Guid actorUserId, string actorRole, CancellationToken ct)
         {
             var isAdmin = RoleHelper.IsAdmin(actorRole);
             if (!isAdmin && userId != actorUserId)
                 throw new ForbiddenException("You can only view your own courses.");
 
-            var list = await _courses.GetByUserAsync(userId, ct);
-            return list.Select(ToDto).ToList();
+            return await _courses.GetByUserAsync(userId, ct);
+
         }
 
 

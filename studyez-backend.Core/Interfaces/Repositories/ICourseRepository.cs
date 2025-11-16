@@ -1,4 +1,5 @@
-﻿using studyez_backend.Core.Entities;
+﻿using studyez_backend.Core.DTO;
+using studyez_backend.Core.Entities;
 
 namespace studyez_backend.Core.Interfaces.Repositories
 {
@@ -32,7 +33,7 @@ namespace studyez_backend.Core.Interfaces.Repositories
         /// <param name="userId"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<List<Course>> GetByUserAsync(Guid userId, CancellationToken ct);
+        Task<List<FetchCourseDto>> GetByUserAsync(Guid userId, CancellationToken ct);
         /// <summary>
         /// Checks if a course with the given name exists for the user.
         /// </summary>

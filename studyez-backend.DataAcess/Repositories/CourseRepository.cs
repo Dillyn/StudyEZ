@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using studyez_backend.Core.DTO;
 using studyez_backend.Core.Entities;
 using studyez_backend.Core.Interfaces.Repositories;
 using studyez_backend.DataAccess.Context;
@@ -21,12 +22,21 @@ namespace studyez_backend.DataAcess.Repositories
                  .IgnoreQueryFilters()
                  .FirstOrDefaultAsync(x => x.Id == id, ct);
 
-        public Task<List<Course>> GetByUserAsync(Guid userId, CancellationToken ct)
+        public Task<List<FetchCourseDto>> GetByUserAsync(Guid userId, CancellationToken ct)
             => db.Courses
-                 .AsNoTracking()
-                 .Where(x => x.UserId == userId)
-                 .OrderByDescending(x => x.CreatedAt)
-                 .ToListAsync(ct);
+            .AsNoTracking()
+            .Where(c => c.UserId == userId)
+            .OrderByDescending(c => c.CreatedAt)
+            .Select(c => new FetchCourseDto(
+                c.Id,
+                c.UserId,
+                c.Name,
+                c.Subject,
+                c.Description,
+                c.CreatedAt,
+                c.Modules.Count(m => !m.IsDeleted) // <-- SQL COUNT(*)
+            ))
+            .ToListAsync(ct);
 
         public Task<bool> ExistsByNameAsync(Guid userId, string name, CancellationToken ct)
             => db.Courses

@@ -21,7 +21,7 @@ namespace studyez_backend.Core.Interfaces.Services
         /// <param name="actorRole"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<IReadOnlyList<CourseDto>> GetByUserAsync(Guid userId, Guid actorUserId, string actorRole, CancellationToken ct);
+        Task<IReadOnlyList<FetchCourseDto>> GetByUserAsync(Guid userId, Guid actorUserId, string actorRole, CancellationToken ct);
 
         // write operations
         /// <summary>

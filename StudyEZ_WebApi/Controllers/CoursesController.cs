@@ -41,9 +41,9 @@ namespace StudyEZ_WebApi.Controllers
         /// <param name="userId">Owner user id.</param>
         [Authorize]
         [HttpGet("by-user/{userId:guid}")]
-        [ProducesResponseType(typeof(IReadOnlyList<CourseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IReadOnlyList<FetchCourseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<IReadOnlyList<CourseDto>>> GetByUser(Guid userId, CancellationToken ct)
+        public async Task<ActionResult<IReadOnlyList<FetchCourseDto>>> GetByUser(Guid userId, CancellationToken ct)
             => Ok(await _courses.GetByUserAsync(userId, _current.UserId, _current.Role, ct));
 
         /// <summary>
