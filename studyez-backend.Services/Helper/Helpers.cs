@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Text.RegularExpressions;
 using DbQuestionType = studyez_backend.Core.Constants.Constants.QuestionType;
 
 namespace studyez_backend.Services.Helper
@@ -31,6 +32,19 @@ namespace studyez_backend.Services.Helper
                 default:
                     return false;
             }
+        }
+
+        public static string StripMarkdown(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+
+            var s = Regex.Replace(input, @"```[\s\S]*?```", " ");         // code blocks
+            s = Regex.Replace(s, @"`[^`]*`", " ");                        // inline code
+            s = Regex.Replace(s, @"\[(.*?)\]\(.*?\)", "$1");              // [text](url)
+            s = Regex.Replace(s, @"^#+\s*", "", RegexOptions.Multiline);  // headings
+            s = Regex.Replace(s, @"[*_~>#\-]", " ");                      // bullets/emphasis
+            s = Regex.Replace(s, @"\s+", " ");                            // collapse whitespace
+            return s.Trim();
         }
     }
 }

@@ -14,6 +14,7 @@ using studyez_backend.Core.Security.Claims;
 using studyez_backend.DataAccess.Context;
 using studyez_backend.DataAcess.Repositories;
 using studyez_backend.Services.Ai;
+using studyez_backend.Services.Ai.AiSpeech;
 using studyez_backend.Services.Services;
 using studyez_backend.Services.Services.ExamResults;
 using StudyEZ_WebApi.Infrastructure;
@@ -115,6 +116,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Azure Speech
+builder.Services.Configure<AzureSpeechOptions>(
+    builder.Configuration.GetSection("AzureSpeech"));
+
+builder.Services.AddHttpClient<ISpeechClient, AzureSpeechClient>((sp, client) =>
+{
+    var opt = sp.GetRequiredService<IOptions<AzureSpeechOptions>>().Value;
+    client.BaseAddress = new Uri(opt.Endpoint);
+});
+
 // Azure OpenAI options
 builder.Services.Configure<AzureOpenAIOptions>(builder.Configuration.GetSection("AzureOpenAI"));
 
@@ -134,6 +145,7 @@ builder.Services.AddHttpClient<IAoaiRestClient, AoaiRestClient>("aoai", (sp, htt
 // AI adapters
 builder.Services.AddScoped<IAiClient, AzureAiClient>();          // simplifier
 builder.Services.AddScoped<IExamGenerator, AzureExamGenerator>(); // exam generator
+builder.Services.AddHttpClient<ISpeechClient, AzureSpeechClient>();
 
 // Repositories & UoW
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
@@ -160,7 +172,7 @@ builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 var app = builder.Build();
 
 // TODO remove later
-// Add a test user in development
+// Adds a test user in development
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();

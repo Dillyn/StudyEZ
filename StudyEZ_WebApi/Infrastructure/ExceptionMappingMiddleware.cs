@@ -19,6 +19,14 @@ namespace StudyEZ_WebApi.Infrastructure
                     ForbiddenException => (StatusCodes.Status403Forbidden, "Forbidden"),
                     UnauthorizedException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
                     BadRequestException => (StatusCodes.Status400BadRequest, "Bad Request"),
+
+                    // Text to Speech mappings
+                    TtsBadRequestException => (StatusCodes.Status400BadRequest, "TTS Bad Request"),
+                    TtsAuthException => (StatusCodes.Status401Unauthorized, "TTS Authentication Error"),
+                    TtsRateLimitException => (StatusCodes.Status429TooManyRequests, "TTS Rate Limited"),
+                    TtsUnavailableException => (StatusCodes.Status503ServiceUnavailable, "TTS Unavailable"),
+                    TtsConfigurationException => (StatusCodes.Status500InternalServerError, "TTS Configuration Error"),
+                    TtsUpstreamException => (StatusCodes.Status502BadGateway, "TTS Upstream Failure"),
                     _ => (StatusCodes.Status400BadRequest, "Bad Request")
                 };
 
