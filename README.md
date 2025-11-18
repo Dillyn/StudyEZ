@@ -59,6 +59,8 @@ An API for **StudyEZ**, an AI-assisted study app. It lets learners create course
 - **Cookie Auth** + **Google OAuth**
     
 - **Azure OpenAI** (via Foundry/Azure AI endpoint)
+
+- - **Azure AI Speech** (via Foundry/Azure AI endpoint)
     
 - Logging with `ILogger<>`, minimal dependencies
     
@@ -82,7 +84,30 @@ An API for **StudyEZ**, an AI-assisted study app. It lets learners create course
 
 Create/update `appsettings.json`:
 
-`{   "ConnectionStrings": {     "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=StudyEZ;Trusted_Connection=True;MultipleActiveResultSets=true"   },   "AzureOpenAI": {     "Endpoint": "https://<your-aoai>.openai.azure.com/",     "ApiKey": "<secret>",     "SimplifyDeployment": "gpt-5-mini",     "ExamDeployment": "gpt-4.1"   },   "Authentication": {     "Google": {       "ClientId": "<google-client-id>",       "ClientSecret": "<google-client-secret>"     }   },   "AllowedHosts": "*" }`
+`{      
+"ConnectionStrings": {     
+    "DefaultConnection": "Server=(yourlocaldb)\\MSSQLLocalDB;Database=StudyEZ;Trusted_Connection=True;MultipleActiveResultSets=true"   
+},
+"AzureOpenAI": {     
+    "Endpoint": "https://<your-aoai>.openai.azure.com/",     
+    "ApiKey": "<secret>",     
+    "SimplifyDeployment": "gpt-5-mini",     
+    "ExamDeployment": "gpt-4.1"   
+},   
+"Authentication": {     
+    "Google": {       
+        "ClientId": "<google-client-id>",
+        "ClientSecret": "<google-client-secret>"
+        }   
+}, 
+"AzureSpeech": {
+     "Endpoint": ""<https://<your-aais>.cognitiveservices.azure.com/>"",
+     "ApiKey": "<secret>",
+     "DefaultVoice": "en-US-AndrewMultilingualNeural",
+     "OutputFormat": "audio-24khz-96kbitrate-mono-mp3"
+ },   
+ "AllowedHosts": "*" 
+ }`
 
 ### 3) Database
 
