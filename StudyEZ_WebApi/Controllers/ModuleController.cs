@@ -33,8 +33,8 @@ namespace StudyEZ_WebApi.Controllers
         /// List modules for a course (excludes soft-deleted by default).
         /// </summary>
         [HttpGet("by-course/{courseId:guid}")]
-        [ProducesResponseType(typeof(IReadOnlyList<ModuleDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IReadOnlyList<ModuleDto>>> GetByCourse(Guid courseId, CancellationToken ct)
+        [ProducesResponseType(typeof(IReadOnlyList<FetchModuleDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IReadOnlyList<FetchModuleDto>>> GetByCourse(Guid courseId, CancellationToken ct)
             => Ok(await _modules.GetByCourseAsync(courseId, ct));
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace StudyEZ_WebApi.Controllers
         /// <remarks>Writes audit columns; enforces ownership/Admin.</remarks>
         [Authorize]
         [HttpPost]
-        [ProducesResponseType(typeof(ModuleDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(FetchModuleDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Create([FromBody] CreateModuleRequest req, CancellationToken ct)
@@ -81,7 +81,7 @@ namespace StudyEZ_WebApi.Controllers
         /// <remarks>Stores the simplified Markdown in the module.</remarks>
         [Authorize]
         [HttpPost("{id:guid}/simplify")]
-        [ProducesResponseType(typeof(ModuleDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FetchModuleDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Simplify(Guid id, CancellationToken ct)
@@ -93,7 +93,8 @@ namespace StudyEZ_WebApi.Controllers
         /// <remarks>Ownership/Admin enforced. Writes UpdatedBy/UpdatedAt.</remarks>
         [Authorize]
         [HttpPut("{id:guid}")]
-        [ProducesResponseType(typeof(ModuleDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FetchModuleDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateModuleRequest req, CancellationToken ct)
@@ -102,6 +103,31 @@ namespace StudyEZ_WebApi.Controllers
                 id,
                 new UpdateModuleCommand(req.Title, req.Order, req.OriginalContent),
                 _current.UserId, _current.Role, ct);
+
+            return Ok(dto);
+        }
+
+        /// <summary>
+        /// Update only the simplified content of a module.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="req"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPut("{id:guid}/simplified")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ModuleDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> UpdateSimplified(Guid id, [FromBody] UpdateModuleSimplifiedRequest req, CancellationToken ct)
+        {
+            var dto = await _modules.UpdateSimplifiedAsync(
+                id,
+                req.SimplifiedContent,
+                _current.UserId,
+                _current.Role,
+                ct);
 
             return Ok(dto);
         }

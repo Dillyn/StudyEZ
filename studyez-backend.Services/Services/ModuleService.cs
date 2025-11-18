@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using studyez_backend.Core.Constants;
 using studyez_backend.Core.DTO;
 using studyez_backend.Core.Entities;
 using studyez_backend.Core.Exceptions;
@@ -27,7 +28,7 @@ namespace studyez_backend.Services.Services
 
         public ModuleService(IModuleRepository modules, ICourseRepository courses, IAiClient ai, IUnitOfWork uow, ILogger<ModuleService> log)
         {
-            _modules = modules;
+            _modules = modules ?? throw new NullReferenceException(nameof(modules));
             _courses = courses;
             _ai = ai;
             _uow = uow;
@@ -37,6 +38,9 @@ namespace studyez_backend.Services.Services
         private static ModuleDto ToDto(Module m)
             => new(m.Id, m.CourseId, m.Title, m.Order, m.OriginalContent, m.SimplifiedContent);
 
+        private static FetchModuleDto ToFetchModuleDto(Module m)
+            => new(m.Id, m.CourseId, m.Title, m.Order, m.OriginalContent, m.SimplifiedContent, DateOnly.FromDateTime(m.CreatedAt));
+
         public async Task<ModuleDto> GetAsync(Guid id, CancellationToken ct)
         {
             var m = await _modules.GetByIdAsync(id, ct)
@@ -45,13 +49,13 @@ namespace studyez_backend.Services.Services
             return ToDto(m);
         }
 
-        public async Task<IReadOnlyList<ModuleDto>> GetByCourseAsync(Guid courseId, CancellationToken ct)
+        public async Task<IReadOnlyList<FetchModuleDto>> GetByCourseAsync(Guid courseId, CancellationToken ct)
         {
             var list = await _modules.GetByCourseAsync(courseId, ct);
-            return list.Select(ToDto).ToList();
+            return list.Select(ToFetchModuleDto).ToList();
         }
 
-        public async Task<ModuleDto> CreateAsync(CreateModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct)
+        public async Task<FetchModuleDto> CreateAsync(CreateModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct)
         {
             var isAdmin = RoleHelper.IsAdmin(actorRole);
 
@@ -81,9 +85,10 @@ namespace studyez_backend.Services.Services
             await _uow.SaveChangesAsync(ct);
 
             _log.LogInformation("Module {ModuleId} created by {Actor}", entity.Id, actorUserId);
-            return ToDto(entity);
+            return ToFetchModuleDto(entity);
         }
 
+        // TODOL look into Uploading files for study data
         public async Task<ModuleDto> UploadAsync(UploadModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct)
         {
             var isAdmin = RoleHelper.IsAdmin(actorRole);
@@ -127,7 +132,7 @@ namespace studyez_backend.Services.Services
             return ToDto(entity);
         }
 
-        public async Task<ModuleDto> SimplifyAsync(Guid moduleId, Guid actorUserId, string actorRole, CancellationToken ct)
+        public async Task<FetchModuleDto> SimplifyAsync(Guid moduleId, Guid actorUserId, string actorRole, CancellationToken ct)
         {
 
             var isAdmin = RoleHelper.IsAdmin(actorRole);
@@ -135,7 +140,7 @@ namespace studyez_backend.Services.Services
             var ownerId = await _modules.GetOwnerUserIdAsync(moduleId, ct)
                           ?? throw new ModuleNotFoundException(moduleId);
 
-            // TODO - above lines commented out for testing purposes - will replace actorUserId with ownerId once testing is complete
+
             OwnershipGuard.EnsureOwnerOrAdmin(ownerId, actorUserId, isAdmin);
 
             var m = await _modules.GetForUpdateAsync(moduleId, ct)
@@ -153,10 +158,10 @@ namespace studyez_backend.Services.Services
             await _uow.SaveChangesAsync(ct);
             _log.LogInformation("Module {ModuleId} simplified by {Actor}", moduleId, actorUserId);
 
-            return ToDto(m);
+            return ToFetchModuleDto(m);
         }
 
-        public async Task<ModuleDto> UpdateAsync(Guid id, UpdateModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct)
+        public async Task<FetchModuleDto> UpdateAsync(Guid id, UpdateModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct)
         {
             var isAdmin = RoleHelper.IsAdmin(actorRole);
 
@@ -168,6 +173,8 @@ namespace studyez_backend.Services.Services
             var m = await _modules.GetForUpdateAsync(id, ct)
                     ?? throw new ModuleNotFoundException(id);
 
+            var originalChanged = false;
+
             if (cmd.Title is not null)
             {
                 var title = cmd.Title.Trim();
@@ -176,7 +183,25 @@ namespace studyez_backend.Services.Services
             }
 
             if (cmd.Order is not null) m.Order = cmd.Order.Value;
-            if (cmd.OriginalContent is not null) m.OriginalContent = cmd.OriginalContent;
+
+            if (cmd.OriginalContent is not null)
+            {
+                var original = cmd.OriginalContent;
+
+                if (original.Length == 0) throw new ValidationException("Original content cannot be empty.");
+
+                if (!string.Equals(m.OriginalContent, original, StringComparison.Ordinal))
+                {
+                    m.OriginalContent = original;
+                    originalChanged = true;
+                }
+            }
+
+            if (originalChanged)
+            {
+                // Clear simplified content if original changed
+                m.SimplifiedContent = null;
+            }
 
             m.UpdatedAt = DateTime.UtcNow;
             m.UpdatedBy = actorUserId;
@@ -185,6 +210,27 @@ namespace studyez_backend.Services.Services
             await _uow.SaveChangesAsync(ct);
 
             _log.LogInformation("Module {ModuleId} updated by {Actor}", id, actorUserId);
+            return ToFetchModuleDto(m);
+        }
+
+        public async Task<ModuleDto> UpdateSimplifiedAsync(Guid id, string simplifiedContent, Guid actorUserId, string actorRole, CancellationToken ct)
+        {
+            var m = await _modules.GetByIdAsync(id, ct)
+                    ?? throw new ModuleNotFoundException(id);
+
+
+            if (!RoleHelper.IsAdmin(actorRole) && m.CreatedBy != actorUserId)
+                throw new ForbiddenException("You are not allowed to edit this module.");
+
+            // block free plan
+            if (string.Equals(actorRole, Constants.UserRole.Free.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new ForbiddenException("Editing simplified content is only available on paid plans Example: PRO and PREMIUM, not FREE.");
+
+            m.SimplifiedContent = simplifiedContent;
+            m.UpdatedAt = DateTime.UtcNow;
+            m.UpdatedBy = actorUserId;
+
+            await _uow.SaveChangesAsync(ct);
             return ToDto(m);
         }
 

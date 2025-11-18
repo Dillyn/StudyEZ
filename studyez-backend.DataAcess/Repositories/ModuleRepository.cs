@@ -19,7 +19,7 @@ namespace studyez_backend.DataAcess.Repositories
         public Task<List<Module>> GetByCourseAsync(Guid courseId, CancellationToken ct) =>
             db.Modules.AsNoTracking()
                       .Where(x => x.CourseId == courseId)
-                      .OrderBy(x => x.Order)
+                      .OrderBy(x => x.CreatedAt)
                       .ToListAsync(ct);
 
         public Task AddAsync(Module entity, CancellationToken ct)

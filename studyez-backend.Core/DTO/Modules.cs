@@ -3,6 +3,7 @@
 namespace studyez_backend.Core.DTO
 {
     public sealed record ModuleDto(Guid Id, Guid CourseId, string Title, int Order, string OriginalContent, string? SimplifiedContent);
+    public sealed record FetchModuleDto(Guid Id, Guid CourseId, string Title, int Order, string OriginalContent, string? SimplifiedContent, DateOnly? CreatedAt);
     public sealed record CreateModuleCommand(Guid CourseId, string Title, int Order, string OriginalContent);
     public sealed record UploadModuleCommand(Guid CourseId, string Title, int Order, Stream File, string FileName, string ContentType);
     public sealed record UpdateModuleCommand(string? Title, int? Order, string? OriginalContent);
@@ -28,5 +29,9 @@ namespace studyez_backend.Core.DTO
         public string Title { get; init; } = default!;
         public int Order { get; init; } = 0;
         public IFormFile File { get; init; } = default!;
+    }
+    public sealed class UpdateModuleSimplifiedRequest
+    {
+        public string SimplifiedContent { get; init; } = default!;
     }
 }

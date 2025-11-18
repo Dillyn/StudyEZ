@@ -13,12 +13,12 @@ namespace studyez_backend.Core.Interfaces.Services
         /// <returns></returns>
         Task<ModuleDto> GetAsync(Guid id, CancellationToken ct);
         /// <summary>
-        /// Getches all modules for a given course
+        /// Fetches all modules for a given course
         /// </summary>
         /// <param name="courseId"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<IReadOnlyList<ModuleDto>> GetByCourseAsync(Guid courseId, CancellationToken ct);
+        Task<IReadOnlyList<FetchModuleDto>> GetByCourseAsync(Guid courseId, CancellationToken ct);
 
         //  write operations
         /// <summary>
@@ -29,7 +29,8 @@ namespace studyez_backend.Core.Interfaces.Services
         /// <param name="actorRole"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<ModuleDto> CreateAsync(CreateModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct);
+        Task<FetchModuleDto> CreateAsync(CreateModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct);
+
         /// <summary>
         /// Uploads a module from a file
         /// </summary>
@@ -39,6 +40,7 @@ namespace studyez_backend.Core.Interfaces.Services
         /// <param name="ct"></param>
         /// <returns></returns>
         Task<ModuleDto> UploadAsync(UploadModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct);
+
         /// <summary>
         /// Simplifies a module's content using AI
         /// </summary>
@@ -47,7 +49,8 @@ namespace studyez_backend.Core.Interfaces.Services
         /// <param name="actorRole"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<ModuleDto> SimplifyAsync(Guid moduleId, Guid actorUserId, string actorRole, CancellationToken ct);
+        Task<FetchModuleDto> SimplifyAsync(Guid moduleId, Guid actorUserId, string actorRole, CancellationToken ct);
+
         /// <summary>
         /// Updates an existing module
         /// </summary>
@@ -57,7 +60,20 @@ namespace studyez_backend.Core.Interfaces.Services
         /// <param name="actorRole"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<ModuleDto> UpdateAsync(Guid id, UpdateModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct);
+        Task<FetchModuleDto> UpdateAsync(Guid id, UpdateModuleCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct);
+
+        /// <summary>
+        /// Updates only the simplified content of a module - useful for manual edits.
+        /// Role must not be Free
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="simplifiedContent"></param>
+        /// <param name="actorUserId"></param>
+        /// <param name="actorRole"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task<ModuleDto> UpdateSimplifiedAsync(Guid id, string simplifiedContent, Guid actorUserId, string actorRole, CancellationToken ct);
+
         /// <summary>
         /// Deletes a module (soft or hard)
         /// </summary>

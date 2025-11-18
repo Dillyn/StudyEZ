@@ -12,6 +12,7 @@ namespace studyez_backend.Core.Interfaces.Repositories
         /// <param name="ct"></param>
         /// <returns></returns>
         Task<Module?> GetByIdAsync(Guid id, CancellationToken ct);
+
         /// <summary>
         /// Gets a module by its ID for update (with row locking).
         /// </summary>
