@@ -23,7 +23,7 @@ namespace StudyEZ_WebApi.Controllers
         /// <param name="redirectUri">Optional target after login (defaults to "/").</param>
         [HttpGet("logintest")]
         [AllowAnonymous]
-        public IActionResult Login([FromQuery] string? redirectUri = "/")
+        public IActionResult LoginTest([FromQuery] string? redirectUri = "/")
         {
             var props = new AuthenticationProperties { RedirectUri = redirectUri ?? "/" };
             return Challenge(props, GoogleDefaults.AuthenticationScheme);
@@ -87,7 +87,7 @@ namespace StudyEZ_WebApi.Controllers
         }
 
         /// <summary>
-        /// A route that requires authentication (useful to verify the cookie).
+        /// A route that requires authentication.
         /// </summary>
         [HttpGet("require")]
         [Authorize]
