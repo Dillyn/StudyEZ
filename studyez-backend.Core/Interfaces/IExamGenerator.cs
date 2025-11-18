@@ -6,7 +6,8 @@
     string CorrectAnswer,
     string[]? Options,
     int Order,
-    decimal Points
+    decimal Points,
+    int ModuleIndex
 );
 
     public sealed record GeneratedExamResult(string? Title, List<GeneratedExamItem> Items);
