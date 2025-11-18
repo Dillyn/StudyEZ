@@ -16,12 +16,12 @@ namespace StudyEZ_WebApi.Controllers
         private readonly IExamResultService _results = results;
         private readonly ICurrentUser _current = currentUser;
 
-        /// <summary>Get a result by id.</summary>
+        /// <summary>Get a detailed Exam result by id.</summary>
         [Authorize]
         [HttpGet("{id:guid}")]
-        [ProducesResponseType(typeof(ExamResultSummaryDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ExamResultDetailDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ExamResultSummaryDto>> Get(Guid id, CancellationToken ct)
+        public async Task<ActionResult<ExamResultDetailDto>> Get(Guid id, CancellationToken ct)
             => Ok(await _results.GetAsync(id, _current.UserId, _current.Role, ct));
 
         /// <summary>List results for a user. Admin sees any user; non-admin only themselves.</summary>

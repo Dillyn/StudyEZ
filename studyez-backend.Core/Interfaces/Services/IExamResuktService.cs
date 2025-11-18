@@ -12,7 +12,7 @@ namespace studyez_backend.Core.Interfaces.Services
         /// <param name="actorRole"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<ExamResultSummaryDto> GetAsync(Guid id, Guid actorUserId, string actorRole, CancellationToken ct);
+        Task<ExamResultDetailDto> GetAsync(Guid id, Guid actorUserId, string actorRole, CancellationToken ct);
         /// <summary>
         /// Get Exam Results by User Id
         /// </summary>

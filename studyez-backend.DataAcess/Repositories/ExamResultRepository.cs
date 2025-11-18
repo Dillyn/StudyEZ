@@ -9,17 +9,22 @@ namespace studyez_backend.DataAcess.Repositories
     {
         public Task<ExamResult?> GetByIdAsync(Guid id, CancellationToken ct)
             => db.ExamResults
+            .Include(r => r.Exam)
+                .ThenInclude(e => e.Course)
             .Include(r => r.Answers)
+            .Include(r => r.ModuleScores)
+                .ThenInclude(ms => ms.Module)
             .FirstOrDefaultAsync(r => r.Id == id, ct);
 
         public Task<List<ExamResult>> GetByUserAsync(Guid userId, CancellationToken ct)
             => db.ExamResults.AsNoTracking()
+            .Include(r => r.Exam)
             .Where(x => x.UserId == userId)
             .OrderByDescending(x => x.CompletedAt)
             .ToListAsync(ct);
 
         public Task<List<ExamResult>> GetByExamAsync(Guid examId, CancellationToken ct)
-            => db.ExamResults.AsNoTracking().Where(x => x.ExamId == examId).OrderByDescending(x => x.CompletedAt).ToListAsync(ct);
+            => db.ExamResults.AsNoTracking().Include(r => r.Exam).Where(x => x.ExamId == examId).OrderByDescending(x => x.CompletedAt).ToListAsync(ct);
 
         public Task AddAsync(ExamResult result, CancellationToken ct)
         {

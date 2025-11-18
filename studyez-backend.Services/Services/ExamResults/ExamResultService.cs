@@ -17,26 +17,26 @@ namespace studyez_backend.Services.Services.ExamResults
             _exams = exams; _results = results; _uow = uow;
         }
 
-        public async Task<ExamResultSummaryDto> GetAsync(Guid id, Guid actorUserId, string actorRole, CancellationToken ct)
+        public async Task<ExamResultDetailDto> GetAsync(Guid id, Guid actorUserId, string actorRole, CancellationToken ct)
         {
             var r = await _results.GetByIdAsync(id, ct) ?? throw new ExamResultNotFoundException(id);
             if (!RoleHelper.IsAdmin(actorRole) && r.UserId != actorUserId) throw new ForbiddenException("You can only view your own results.");
-            return ToDto(r);
+            return ToDetailDto(r);
         }
 
         public async Task<IReadOnlyList<ExamResultSummaryDto>> GetByUserAsync(Guid userId, Guid actorUserId, string actorRole, CancellationToken ct)
         {
             // Only admin can query arbitrary users
             if (!RoleHelper.IsAdmin(actorRole) && userId != actorUserId) throw new ForbiddenException("Not allowed.");
-            return (await _results.GetByUserAsync(userId, ct)).Select(ToDto).ToList();
+            return (await _results.GetByUserAsync(userId, ct)).Select(ToSummaryDto).ToList();
         }
 
         public async Task<IReadOnlyList<ExamResultSummaryDto>> GetByExamAsync(Guid examId, Guid actorUserId, string actorRole, CancellationToken ct)
         {
             // Anyone can list their own results; admin can view all.
             var list = await _results.GetByExamAsync(examId, ct);
-            if (RoleHelper.IsAdmin(actorRole)) return list.Select(ToDto).ToList();
-            return list.Where(r => r.UserId == actorUserId).Select(ToDto).ToList();
+            if (RoleHelper.IsAdmin(actorRole)) return list.Select(ToSummaryDto).ToList();
+            return list.Where(r => r.UserId == actorUserId).Select(ToSummaryDto).ToList();
         }
 
         public async Task<ExamResultSummaryDto> CreateAsync(CreateExamResultCommand cmd, Guid actorUserId, string actorRole, CancellationToken ct)
@@ -86,10 +86,30 @@ namespace studyez_backend.Services.Services.ExamResults
             }
 
             await _uow.SaveChangesAsync(ct);
-            return ToDto(r);
+            return ToSummaryDto(r);
         }
 
-        private static ExamResultSummaryDto ToDto(Core.Entities.ExamResult r)
-            => new(r.Id, r.ExamId, r.UserId, r.OverallScore, r.TotalQuestions, r.CorrectAnswers, r.CompletedAt);
+        private static ExamResultSummaryDto ToSummaryDto(Core.Entities.ExamResult r)
+            => new(r.Id, r.ExamId, r.UserId, r.Exam.Title, r.OverallScore, r.TotalQuestions, r.CorrectAnswers, r.CompletedAt);
+
+        private static ExamResultDetailDto ToDetailDto(Core.Entities.ExamResult r) =>
+            new(
+                r.Id,
+                r.ExamId,
+                r.UserId,
+                r.Exam?.Title,
+                r.Exam?.Course?.Name,
+                r.OverallScore,
+                r.TotalQuestions,
+                r.CorrectAnswers,
+                r.CompletedAt,
+                r.ModuleScores
+                    .Select(ms => new ModuleScoreItem(
+                        ms.ModuleId,
+                        ms.Module?.Title,
+                        ms.Score,
+                        ms.QuestionsCount,
+                        ms.CorrectCount))
+                          .ToList());
     }
 }

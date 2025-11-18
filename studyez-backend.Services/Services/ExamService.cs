@@ -44,9 +44,20 @@ namespace studyez_backend.Services.Services
             var mods = await _modules.GetByCourseAsync(course.Id, ct);
             if (mods.Count == 0) throw new InvalidExamGenerationException("Course has no modules.");
 
+            var moduleList = mods
+                .OrderBy(m => m.CreatedAt)
+                .Select((m, index) => new
+                {
+                    Index = index + 1,
+                    ModuleId = m.Id,
+                    Title = m.Title,
+                    Original = m.OriginalContent ?? string.Empty
+                })
+                .ToList();
+
             var result = await _gen.GenerateAsync(
                 course.Name,
-                mods.Select(m => (m.Title, m.OriginalContent ?? string.Empty)),
+                moduleList.Select(m => (m.Title, m.Original)),
                 cmd.TotalQuestions,
                 ct);
 
@@ -61,16 +72,25 @@ namespace studyez_backend.Services.Services
             };
             await _exams.AddAsync(exam, ct);
 
-            int order = 1;
+            var modulesByIndex = moduleList.ToDictionary(m => m.Index);
+            var order = 1;
+
             foreach (var item in result.Items.OrderBy(i => i.Order))
             {
                 if (!Helpers.TryMapAiTypeToEnum(item.Type, out var qType))
                     throw new ValidationException($"Unknown question type from AI: '{item.Type}'");
 
+                // Map moduleIndex to actual ModuleId
+                if (!modulesByIndex.TryGetValue(item.ModuleIndex, out var moduleInfo))
+                {
+                    // fallback behaviour if model misbehaves
+                    moduleInfo = moduleList.First();
+                }
+
                 var q = new Question
                 {
                     Id = Guid.NewGuid(),
-                    ModuleId = mods.First().Id,
+                    ModuleId = moduleInfo.ModuleId,
                     Type = qType,
                     QuestionText = item.QuestionText.Trim(),
                     CorrectAnswer = item.CorrectAnswer.Trim(),

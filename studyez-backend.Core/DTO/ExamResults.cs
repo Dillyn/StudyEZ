@@ -1,8 +1,8 @@
 ﻿namespace studyez_backend.Core.DTO
 {
-    public sealed record ExamResultSummaryDto(Guid Id, Guid ExamId, Guid UserId, decimal OverallScore, int TotalQuestions, int CorrectAnswers, DateTime CompletedAt);
+    public sealed record ExamResultSummaryDto(Guid Id, Guid ExamId, Guid UserId, string? ExamTitle, decimal OverallScore, int TotalQuestions, int CorrectAnswers, DateTime CompletedAt);
 
-    public sealed record ExamResultDetailDto(Guid Id, Guid ExamId, Guid UserId, string? CourseName, decimal OverallScore, int TotalQuestions, int CorrectAnswers, DateTime CompletedAt,
+    public sealed record ExamResultDetailDto(Guid Id, Guid ExamId, Guid UserId, string? ExamTitle, string? CourseName, decimal OverallScore, int TotalQuestions, int CorrectAnswers, DateTime CompletedAt,
     IReadOnlyList<ModuleScoreItem> ModuleScores);
     public sealed record CreateExamResultCommand(
         Guid ExamId, Guid UserId, decimal OverallScore, int TotalQuestions, int CorrectAnswers, TimeSpan? TimeTaken,
