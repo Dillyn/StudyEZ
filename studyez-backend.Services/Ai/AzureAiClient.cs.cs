@@ -17,13 +17,20 @@ namespace studyez_backend.Services.Ai
         public async Task<string> SimplifyAsync(string content, CancellationToken ct = default)
         {
             const int MaxChunkChars = 8000;
+
+            // Chunk the content into smaller parts if it exceeds the max chunk size
             var chunks = Chunk(content, MaxChunkChars);
 
             var sys = "You are a study simplifier. Output clear Markdown with headings/bullets; no external facts.";
 
+            // Initialize a list to store the simplified parts of the content
             var parts = new List<string>(chunks.Count);
+
+            // Loop through each chunk, sending it to the model for simplification.
             foreach (var ch in chunks)
             {
+
+                // Construct the request body for the API call, including the system and user messages.
                 var body = new
                 {
                     messages = new object[]
@@ -53,9 +60,11 @@ namespace studyez_backend.Services.Ai
                 max_completion_tokens = 2000
             };
 
+            // Send the merge request to the API and return the merged content.
             return await _rest.ChatAsync(_opt.SimplifyModelOrDeployment, mergeBody, ct);
         }
 
+        // Helper method to split long content into chunks
         private static List<string> Chunk(string text, int size)
         {
             var list = new List<string>(Math.Max(1, text.Length / size + 1));

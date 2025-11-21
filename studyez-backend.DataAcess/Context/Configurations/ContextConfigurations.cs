@@ -126,7 +126,7 @@ namespace studyez_backend.DataAccess.Context.Configurations
 
             b.HasKey(x => x.Id);
 
-            b.Property(x => x.Type)               // <-- property must be your enum type
+            b.Property(x => x.Type)
                 .HasConversion(enumToString)      // store hyphenated string in SQL
                 .HasMaxLength(50)
                 .IsRequired();

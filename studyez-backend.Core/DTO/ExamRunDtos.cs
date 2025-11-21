@@ -8,7 +8,7 @@
 
     public sealed record ExamQuestionItemDto(
         Guid QuestionId,
-        string Type,                  // hyphenated
+        string Type,
         string QuestionText,
         IReadOnlyList<string>? Options,  // MCQ only
         int Order,

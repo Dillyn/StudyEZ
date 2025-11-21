@@ -5,6 +5,9 @@ using studyez_backend.Core.Interfaces;
 
 namespace studyez_backend.Services.Ai
 {
+    /// <summary>
+    /// // This client sends requests to the API and processes the response to return the content.
+    /// </summary>
     public sealed class AoaiRestClient(HttpClient http, IOptions<AzureOpenAIOptions> opt) : IAoaiRestClient
     {
         private readonly HttpClient _http = http;
@@ -12,6 +15,7 @@ namespace studyez_backend.Services.Ai
 
         public async Task<string> ChatAsync(string deployment, object body, CancellationToken ct = default)
         {
+
             if (_opt.UseGlobalEndpoint)
                 throw new InvalidOperationException("Global endpoint disabled. Set UseGlobalEndpoint=false and pass deployment names.");
 
@@ -30,6 +34,7 @@ namespace studyez_backend.Services.Ai
                 .GetString() ?? string.Empty;
         }
 
+        // JSON serializer options for formatting the request/response.
         private static readonly JsonSerializerOptions JsonOpts = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

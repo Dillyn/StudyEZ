@@ -17,12 +17,16 @@ namespace studyez_backend.Services.Ai
             _opt = opt.Value;
         }
 
+        /// <summary>
+        /// // Asynchronously generates an exam from the provided course content and specified question distribution.
+        /// </summary>
         public async Task<GeneratedExamResult> GenerateAsync(
             string courseName,
             IEnumerable<(string ModuleTitle, string OriginalContent)> modules,
             int totalQuestions = 20,
             CancellationToken ct = default)
         {
+            // Calculate the number of multiple-choice (MCQ), true-false (TF), and short-answer (SA) questions.
             int mcq = (int)Math.Round(totalQuestions * 0.70, MidpointRounding.AwayFromZero);
             int tf = (int)Math.Round(totalQuestions * 0.20, MidpointRounding.AwayFromZero);
             int sa = totalQuestions - mcq - tf;
@@ -41,8 +45,10 @@ namespace studyez_backend.Services.Ai
                 response_format = new { type = "json_object" }
             };
 
+            // Call the OpenAI API using the rest client to generate the exam content.
             var raw = await _rest.ChatAsync(_opt.ExamModelOrDeployment, body, ct);
 
+            // Parse the raw JSON response to extract the exam title and items.
             using var doc = JsonDocument.Parse(raw);
             var root = doc.RootElement;
 
@@ -50,34 +56,44 @@ namespace studyez_backend.Services.Ai
 
             var items = new List<GeneratedExamItem>();
 
+
+            // If the "items" property exists and is an array, process each item.
             if (root.TryGetProperty("items", out var arr) && arr.ValueKind == JsonValueKind.Array)
             {
                 foreach (var el in arr.EnumerateArray())
                 {
+
+                    // Extract the question type, question text, correct answer, and order.
                     var type = el.GetProperty("type").GetString()!;
                     var q = el.GetProperty("questionText").GetString()!;
                     var a = el.GetProperty("correctAnswer").GetString()!;
                     var ord = el.GetProperty("order").GetInt32();
 
+                    // Initialize options array for multiple-choice questions
+                    // optional due to MCQ only
                     string[]? options = null;
                     if (type == "multiple-choice" &&
                         el.TryGetProperty("options", out var optEl) &&
                         optEl.ValueKind == JsonValueKind.Array)
                     {
+                        // Extract options from the JSON array
                         options = optEl.EnumerateArray()
                                        .Select(x => x.GetString() ?? "")
                                        .ToArray();
+
+                        // Ensure exactly 4 options
                         options = options.Length >= 4
                             ? options.Take(4).ToArray()
                             : options.Concat(Enumerable.Repeat(string.Empty, 4 - options.Length)).ToArray();
                     }
 
+                    // Get module index for each question
                     // moduleIndex (default 1 if missing)
                     int moduleIndex = el.TryGetProperty("moduleIndex", out var miEl) &&
                                       miEl.ValueKind == JsonValueKind.Number
                         ? miEl.GetInt32()
                         : 1;
-
+                    // Create a new GeneratedExamItem and add it to the list.
                     items.Add(new GeneratedExamItem(
                         type,
                         q,
@@ -115,6 +131,7 @@ namespace studyez_backend.Services.Ai
                 sb.AppendLine();
             }
 
+            // Add task instructions, including the number and distribution of questions.
             sb.AppendLine($$"""
 TASK:
 Create a single course-wide exam strictly from the content above.
@@ -156,19 +173,26 @@ Return STRICT JSON in this schema (no extra text):
         /// <returns>List of generated exam items</returns>
         private static List<GeneratedExamItem> Rebalance(List<GeneratedExamItem> items, int mcq, int tf, int sa)
         {
+            // Separate items by type: MCQs, TFs, and SAs
             var mcqs = items.Where(i => i.Type == "multiple-choice").Take(mcq).ToList();
             var tfs = items.Where(i => i.Type == "true-false").Take(tf).ToList();
             var sas = items.Where(i => i.Type == "short-answer").Take(sa).ToList();
 
+            // Calculate the total number of items needed.
             var need = mcq + tf + sa;
+
+
             var combined = new List<GeneratedExamItem>(mcqs.Count + tfs.Count + sas.Count);
             combined.AddRange(mcqs); combined.AddRange(tfs); combined.AddRange(sas);
 
+            // If there are not enough items, add leftovers to fill the remaining slots.
             if (combined.Count < need)
             {
                 var leftovers = items.Except(combined).ToList();
                 combined.AddRange(leftovers.Take(need - combined.Count));
             }
+
+            // Return the balanced list, limited to the requested number of items.
             return combined.Take(need).ToList();
         }
     }

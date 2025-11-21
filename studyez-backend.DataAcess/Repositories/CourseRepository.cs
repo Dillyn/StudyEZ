@@ -34,7 +34,7 @@ namespace studyez_backend.DataAcess.Repositories
                 c.Subject,
                 c.Description,
                 c.CreatedAt,
-                c.Modules.Count(m => !m.IsDeleted) // <-- SQL COUNT(*)
+                c.Modules.Count(m => !m.IsDeleted)
             ))
             .ToListAsync(ct);
 
@@ -51,7 +51,6 @@ namespace studyez_backend.DataAcess.Repositories
 
         public Task UpdateAsync(Course course, CancellationToken ct)
         {
-            // TODO: EF Core tracks entities automatically, so this method is currently a no-op.
             return Task.CompletedTask;
         }
 
